@@ -5,7 +5,7 @@ ss-server -s 0.0.0.0 -p "$SS_PORT" -k "$SS_PASSWORD" -m "$SS_METHOD" &
 
 sleep 3
 
-# Get public IP (no curl, use busybox wget)
+# Get public IP (no curl needed)
 IP=$(wget -qO- http://ifconfig.me 2>/dev/null || echo "127.0.0.1")
 
 # Print connection info
@@ -15,7 +15,7 @@ echo "Shadowsocks link (ss://): ss://$LINK"
 echo "Raw (method:password@host:port): $SS_METHOD:$SS_PASSWORD@$IP:$SS_PORT"
 echo "================================="
 
-# Lightweight keep-alive using /dev/tcp
+# Keep container alive with very low resource usage
 while true; do
     for host in google.com cloudflare.com example.com; do
         (echo > /dev/tcp/$host/80) >/dev/null 2>&1
