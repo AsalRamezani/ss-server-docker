@@ -1,24 +1,31 @@
 #!/bin/sh
 
-# Start Shadowsocks server
-ss-server -s 0.0.0.0 -p "$SS_PORT" -k "$SS_PASSWORD" -m "$SS_METHOD" &
+SS_PORT="${PORT:-${SS_PORT}}"
+
+echo "Starting Shadowsocks on port $SS_PORT..."
+
+
+ss-server -s 0.0.0.0 -p "$SS_PORT" -k "$SS_PASSWORD" -m "$SS_METHOD" -u &
 
 sleep 3
 
-# Get public IP (no curl needed)
-IP=$(wget -qO- http://ifconfig.me 2>/dev/null || echo "127.0.0.1")
+IP=$(wget -qO- ifconfig.me 2>/dev/null || echo "RAILWAY_DOMAIN")
 
-# Print connection info
+
+if [ -n "$RAILWAY_PUBLIC_DOMAIN" ]; then
+    IP="$RAILWAY_PUBLIC_DOMAIN"
+fi
+
+
 LINK=$(echo -n "$SS_METHOD:$SS_PASSWORD@$IP:$SS_PORT" | base64 | tr -d '\n')
+
 echo "================================="
-echo "Shadowsocks link (ss://): ss://$LINK"
-echo "Raw (method:password@host:port): $SS_METHOD:$SS_PASSWORD@$IP:$SS_PORT"
+echo "Shadowsocks Server Started!"
+echo "================================="
+echo "ss://$LINK"
+echo ""
+echo "Raw: $SS_METHOD:$SS_PASSWORD@$IP:$SS_PORT"
 echo "================================="
 
-# Keep container alive with very low resource usage
-while true; do
-    for host in google.com cloudflare.com example.com; do
-        (echo > /dev/tcp/$host/80) >/dev/null 2>&1
-    done
-    sleep 300
-done
+
+tail -f /dev/null
