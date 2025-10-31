@@ -1,16 +1,22 @@
-# Base official Shadowsocks-libev image
+# پایه رسمی shadowsocks-libev
 FROM shadowsocks/shadowsocks-libev:latest
 
-# Expose Shadowsocks port
-EXPOSE 8388/tcp
+# نصب curl برای keepalive
+RUN apk add --no-cache curl
 
-# Environment variables (can also set in Railway Variables)
-ENV SS_PASSWORD=MyPass123
+# پورت Shadowsocks
+EXPOSE 8388/tcp 8388/udp
+
+# متغیرهای محیطی (قابل override در Railway Variables)
+ENV SS_PASSWORD=1q2w3e4r5t6y7u8i9o
 ENV SS_METHOD=chacha20-ietf-poly1305
 ENV SS_PORT=8388
 
-# Copy entrypoint script
+# کپی فایل entrypoint
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
-# Directly use entrypoint without chmod (Railway Free Tier may not allow chmod)
+# اطمینان از executable بودن فایل (روی سیستم قبل از build)
+# chmod +x docker-entrypoint.sh
+
+# دستور اجرا
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
